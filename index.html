@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>Smart Roulette</title>
+<title>Rollet</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,23 +15,18 @@
   </div>
 
   <button id="spinBtn">돌리기 🎯</button>
-  <button id="suggestBtn">제안 추가 💡</button>
-  <button id="resetBtn">DB 초기화 🧹</button>
+  <button id="addBtn">항목 추가 💡</button>
   <button id="adminBtn">관리자 🔐</button>
 
-  <!-- 관리자 패널 -->
   <div id="adminPanel" class="hidden">
-    <h3>관리자 패널</h3>
-
-    <button id="addBtn">항목 추가 ➕</button>
-
-    <div id="itemList"></div>
+    <h3>관리자</h3>
+    <div id="list"></div>
   </div>
 
   <div class="result" id="result"></div>
 
 </div>
 
-<script src="script.js"></script>
+<script type="module" src="script.js"></script>
 </body>
 </html>
