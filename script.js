@@ -5,7 +5,7 @@ let arc;
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 
-fetch("Item.json")
+fetch("Item.json?v=" + Date.now())
   .then(res => res.json())
   .then(data => {
     items = data.items;
