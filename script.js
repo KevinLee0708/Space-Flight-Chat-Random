@@ -1,4 +1,27 @@
-let items = JSON.parse(localStorage.getItem("roulette_items") || "[]");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  set,
+  get
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+/* 🔥 Firebase 설정 */
+const firebaseConfig = {
+    apiKey: "AIzaSyCNNbsbuyLDfZN8XB5uzexBNaNA_MuJ8QI",
+    authDomain: "website-kevinlee0708.firebaseapp.com",
+    projectId: "website-kevinlee0708",
+    storageBucket: "website-kevinlee0708.firebasestorage.app",
+    messagingSenderId: "313895693324",
+    appId: "1:313895693324:web:81941ff11d726c7d7fd229",
+    measurementId: "G-4NP7NRK0ED"
+  };
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* 🎯 상태 */
+let items = [];
 let startAngle = 0;
 let arc;
 
@@ -10,17 +33,31 @@ const colors = [
   "#c77dff","#ff922b","#20c997","#f06595"
 ];
 
-/* 📦 JSON + 로컬 합치기 */
-fetch("Item.json?v=" + Date.now())
-  .then(res => res.json())
-  .then(data => {
-    items = [...new Set([...data.items, ...items])];
-    arc = Math.PI * 2 / items.length;
-    drawWheel();
-  });
+/* 📥 Firebase 로드 (Rollet/items) */
+async function loadData(){
+  const snap = await get(ref(db,"Rollet/items"));
+
+  if(snap.exists()){
+    items = snap.val();
+  } else {
+    const res = await fetch("Item.json");
+    const data = await res.json();
+    items = data.items;
+    saveData();
+  }
+
+  arc = Math.PI*2/items.length;
+  drawWheel();
+  renderList();
+}
+
+/* 💾 저장 */
+function saveData(){
+  set(ref(db,"Rollet/items"), items);
+}
 
 /* 🎡 룰렛 */
-function drawWheel() {
+function drawWheel(){
   ctx.clearRect(0,0,400,400);
 
   for(let i=0;i<items.length;i++){
@@ -39,7 +76,7 @@ function drawWheel() {
       200 + Math.cos(angle+arc/2)*120,
       200 + Math.sin(angle+arc/2)*120
     );
-    ctx.rotate(angle+arc/2+Math.PI/2);
+    ctx.rotate(angle+arc/2);
     ctx.fillText(items[i], -ctx.measureText(items[i]).width/2,0);
     ctx.restore();
   }
@@ -58,6 +95,7 @@ function spin(){
     if(p<1) requestAnimationFrame(animate);
     else showResult();
   }
+
   requestAnimationFrame(animate);
 }
 
@@ -67,26 +105,19 @@ function showResult(){
   const arcDeg = arc*180/Math.PI;
   const index = Math.floor((360-(deg%360))/arcDeg)%items.length;
 
-  document.getElementById("result").innerHTML =
+  document.getElementById("result").innerText =
     "🎉 " + items[index];
 }
 
-/* 💡 추가 */
-document.getElementById("suggestBtn").addEventListener("click",()=>{
+/* ➕ 추가 */
+document.getElementById("addBtn").addEventListener("click",async ()=>{
   const v = prompt("추가:");
   if(!v) return;
 
   items.push(v);
-  localStorage.setItem("roulette_items",JSON.stringify(items));
-  arc = Math.PI*2/items.length;
+  saveData();
   drawWheel();
-});
-
-/* 🧹 초기화 */
-document.getElementById("resetBtn").addEventListener("click",()=>{
-  if(!confirm("초기화?")) return;
-  localStorage.removeItem("roulette_items");
-  location.reload();
+  renderList();
 });
 
 /* 🔐 관리자 */
@@ -97,27 +128,37 @@ document.getElementById("adminBtn").addEventListener("click",()=>{
   if(pw==="1234"){
     admin=true;
     document.getElementById("adminPanel").classList.remove("hidden");
+    renderList();
   }
 });
 
-/* ➕ 추가 */
-document.getElementById("addBtn").addEventListener("click",()=>{
-  const v = prompt("항목:");
-  if(!v) return;
-  items.push(v);
-  localStorage.setItem("roulette_items",JSON.stringify(items));
-  arc = Math.PI*2/items.length;
+/* 🗑 삭제 */
+function deleteItem(i){
+  items.splice(i,1);
+  saveData();
   drawWheel();
-});
+  renderList();
+}
 
-/* ❌ 삭제 */
-document.getElementById("deleteBtn").addEventListener("click",()=>{
-  const v = document.getElementById("deleteInput").value;
-  items = items.filter(i=>i!==v);
-  localStorage.setItem("roulette_items",JSON.stringify(items));
-  arc = Math.PI*2/items.length;
-  drawWheel();
-});
+/* 📋 리스트 */
+function renderList(){
+  const list = document.getElementById("list");
+  if(!list) return;
 
-/* 이벤트 */
+  list.innerHTML="";
+
+  items.forEach((item,i)=>{
+    const div=document.createElement("div");
+    div.innerHTML=`
+      ${item}
+      <button onclick="deleteItem(${i})">🗑</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+/* 🎯 이벤트 */
 document.getElementById("spinBtn").addEventListener("click",spin);
+
+/* 🚀 시작 */
+loadData();
