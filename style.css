@@ -30,7 +30,7 @@ body {
   height: 0;
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
-  border-bottom: 25px solid #ff3b3b;
+  border-top: 25px solid #ff3b3b; /* ▼ 아래 방향 */
   z-index: 10;
 }
 
