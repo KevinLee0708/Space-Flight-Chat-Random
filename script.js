@@ -10,97 +10,114 @@ const colors = [
   "#c77dff","#ff922b","#20c997","#f06595"
 ];
 
-/* 📦 기본 JSON + 로컬 DB 합치기 */
+/* 📦 JSON + 로컬 합치기 */
 fetch("Item.json?v=" + Date.now())
   .then(res => res.json())
   .then(data => {
-
-    const base = data.items;
-
-    // 합치기 + 중복 제거
-    items = [...new Set([...base, ...items])];
-
+    items = [...new Set([...data.items, ...items])];
     arc = Math.PI * 2 / items.length;
     drawWheel();
   });
 
-/* 🎡 룰렛 그리기 */
+/* 🎡 룰렛 */
 function drawWheel() {
-  const radius = 180;
+  ctx.clearRect(0,0,400,400);
 
-  ctx.clearRect(0, 0, 400, 400);
-
-  for (let i = 0; i < items.length; i++) {
-    const angle = startAngle + i * arc;
+  for(let i=0;i<items.length;i++){
+    const angle = startAngle + i*arc;
 
     ctx.fillStyle = colors[i % colors.length];
 
     ctx.beginPath();
-    ctx.moveTo(200, 200);
-    ctx.arc(200, 200, radius, angle, angle + arc);
+    ctx.moveTo(200,200);
+    ctx.arc(200,200,180,angle,angle+arc);
     ctx.fill();
 
     ctx.save();
-    ctx.fillStyle = "white";
+    ctx.fillStyle="white";
     ctx.translate(
-      200 + Math.cos(angle + arc / 2) * 120,
-      200 + Math.sin(angle + arc / 2) * 120
+      200 + Math.cos(angle+arc/2)*120,
+      200 + Math.sin(angle+arc/2)*120
     );
-    ctx.rotate(angle + arc / 2 + Math.PI / 2);
-    ctx.fillText(items[i], -ctx.measureText(items[i]).width / 2, 0);
+    ctx.rotate(angle+arc/2+Math.PI/2);
+    ctx.fillText(items[i], -ctx.measureText(items[i]).width/2,0);
     ctx.restore();
   }
 }
 
 /* 🎯 돌리기 */
-function spin() {
-  const spinAngle = Math.random() * 2000 + 2000;
-  const duration = 4000;
+function spin(){
+  const spinAngle = Math.random()*2000+2000;
   const start = performance.now();
 
-  function animate(time) {
-    const progress = Math.min((time - start) / duration, 1);
-
-    startAngle += (spinAngle * (1 - easeOut(progress))) * Math.PI / 180;
+  function animate(t){
+    const p = Math.min((t-start)/4000,1);
+    startAngle += (spinAngle*(1-p*p*p))*Math.PI/180;
     drawWheel();
 
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      showResult();
-    }
+    if(p<1) requestAnimationFrame(animate);
+    else showResult();
   }
-
   requestAnimationFrame(animate);
 }
 
-function easeOut(t) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
 /* 🎉 결과 */
-function showResult() {
-  const degrees = startAngle * 180 / Math.PI + 90;
-  const arcDeg = arc * 180 / Math.PI;
-  const index = Math.floor((360 - (degrees % 360)) / arcDeg) % items.length;
+function showResult(){
+  const deg = startAngle*180/Math.PI+90;
+  const arcDeg = arc*180/Math.PI;
+  const index = Math.floor((360-(deg%360))/arcDeg)%items.length;
 
   document.getElementById("result").innerHTML =
-    "🎉 결과: <span style='color:yellow'>" + items[index] + "</span>";
+    "🎉 " + items[index];
 }
 
-/* 🎯 버튼 */
-document.getElementById("spinBtn").addEventListener("click", spin);
+/* 💡 추가 */
+document.getElementById("suggestBtn").addEventListener("click",()=>{
+  const v = prompt("추가:");
+  if(!v) return;
 
-/* 💡 제안 추가 + 로컬 저장 */
-document.getElementById("suggestBtn").addEventListener("click", () => {
-  const input = prompt("추가할 항목 입력:");
-  if (!input) return;
-
-  items.push(input);
-
-  // 💾 로컬 DB 저장
-  localStorage.setItem("roulette_items", JSON.stringify(items));
-
-  arc = Math.PI * 2 / items.length;
+  items.push(v);
+  localStorage.setItem("roulette_items",JSON.stringify(items));
+  arc = Math.PI*2/items.length;
   drawWheel();
 });
+
+/* 🧹 초기화 */
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  if(!confirm("초기화?")) return;
+  localStorage.removeItem("roulette_items");
+  location.reload();
+});
+
+/* 🔐 관리자 */
+let admin=false;
+
+document.getElementById("adminBtn").addEventListener("click",()=>{
+  const pw = prompt("비밀번호:");
+  if(pw==="1234"){
+    admin=true;
+    document.getElementById("adminPanel").classList.remove("hidden");
+  }
+});
+
+/* ➕ 추가 */
+document.getElementById("addBtn").addEventListener("click",()=>{
+  const v = prompt("항목:");
+  if(!v) return;
+  items.push(v);
+  localStorage.setItem("roulette_items",JSON.stringify(items));
+  arc = Math.PI*2/items.length;
+  drawWheel();
+});
+
+/* ❌ 삭제 */
+document.getElementById("deleteBtn").addEventListener("click",()=>{
+  const v = document.getElementById("deleteInput").value;
+  items = items.filter(i=>i!==v);
+  localStorage.setItem("roulette_items",JSON.stringify(items));
+  arc = Math.PI*2/items.length;
+  drawWheel();
+});
+
+/* 이벤트 */
+document.getElementById("spinBtn").addEventListener("click",spin);
