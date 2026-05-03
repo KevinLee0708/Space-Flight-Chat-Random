@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>항공 우주방 롤렛</title>
+<title>Smart Roulette</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,14 +19,17 @@
   <button id="resetBtn">DB 초기화 🧹</button>
   <button id="adminBtn">관리자 🔐</button>
 
+  <!-- 관리자 패널 -->
   <div id="adminPanel" class="hidden">
     <h3>관리자 패널</h3>
-    <button id="addBtn">항목 추가</button>
-    <input id="deleteInput" placeholder="삭제할 항목">
-    <button id="deleteBtn">삭제</button>
+
+    <button id="addBtn">항목 추가 ➕</button>
+
+    <div id="itemList"></div>
   </div>
 
   <div class="result" id="result"></div>
+
 </div>
 
 <script src="script.js"></script>
