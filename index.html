@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>룰렛</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>룰렛</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-  <div class="pointer"></div>
-  <canvas id="wheel" width="400" height="400"></canvas>
+
+  <div class="wheel-box">
+    <div class="pointer"></div>
+    <canvas id="wheel" width="400" height="400"></canvas>
+  </div>
+
   <button id="spinBtn">돌리기 🎯</button>
+  <button id="suggestBtn">제안 추가 💡</button>
+
   <div class="result" id="result"></div>
 </div>
 
