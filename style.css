@@ -1,7 +1,7 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  font-family: Arial;
+  background: linear-gradient(135deg, #1e1e2f, #3a3a6a);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,37 +13,54 @@ body {
   text-align: center;
 }
 
-canvas {
-  background: white;
-  border-radius: 50%;
+.wheel-box {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  margin: auto;
 }
 
-button {
-  margin-top: 20px;
-  padding: 12px 24px;
-  font-size: 18px;
-  border: none;
-  border-radius: 10px;
-  background: #ffcc00;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-button:hover {
-  background: #ffe066;
-}
-
-.result {
-  margin-top: 20px;
-  font-size: 22px;
-  font-weight: bold;
-}
-
+/* 🎯 중앙 고정 화살표 */
 .pointer {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 0;
   height: 0;
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
-  border-bottom: 25px solid red;
-  margin: 0 auto;
+  border-bottom: 25px solid #ff3b3b;
+  z-index: 10;
+}
+
+canvas {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255,255,255,0.2);
+  background: white;
+}
+
+button {
+  margin: 10px;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#spinBtn {
+  background: linear-gradient(45deg, #ffcc00, #ff6b6b);
+  color: white;
+}
+
+#suggestBtn {
+  background: linear-gradient(45deg, #00c6ff, #0072ff);
+  color: white;
+}
+
+.result {
+  margin-top: 15px;
+  font-size: 22px;
 }
