@@ -1,69 +1,49 @@
 body {
   margin: 0;
   font-family: Arial;
-  background: linear-gradient(135deg, #1e1e2f, #3a3a6a);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  color: white;
+  background: linear-gradient(135deg,#1e1e2f,#3a3a6a);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:white;
 }
 
-.container {
-  text-align: center;
-}
+.container { text-align:center; }
 
 .wheel-box {
-  position: relative;
-  width: 400px;
-  height: 400px;
-  margin: auto;
+  position:relative;
+  width:400px;
+  height:400px;
 }
 
-/* ▼ 중앙 화살표 */
 .pointer {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-top: 25px solid red;
-  z-index: 10;
+  position:absolute;
+  top:-10px;
+  left:50%;
+  transform:translateX(-50%);
+  border-left:15px solid transparent;
+  border-right:15px solid transparent;
+  border-top:25px solid red;
 }
 
 canvas {
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 0 30px rgba(255,255,255,0.2);
+  border-radius:50%;
+  background:white;
 }
 
 button {
-  margin: 6px;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
+  margin:5px;
+  padding:10px 14px;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-#spinBtn { background: linear-gradient(45deg,#ffcc00,#ff6b6b); }
-#suggestBtn { background: linear-gradient(45deg,#00c6ff,#0072ff); }
-#resetBtn { background: linear-gradient(45deg,#ff4d4d,#ff0000); }
-#adminBtn { background: #444; color: white; }
-
-.hidden { display: none; }
-
-#adminPanel {
-  margin-top: 10px;
-  padding: 10px;
-  background: rgba(0,0,0,0.4);
-  border-radius: 10px;
-}
+.hidden { display:none; }
 
 .result {
-  margin-top: 15px;
-  font-size: 20px;
+  margin-top:10px;
+  font-size:20px;
 }
