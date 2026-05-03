@@ -2,8 +2,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import {
   getDatabase,
   ref,
-  set,
-  get
+  get,
+  set
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 /* 🔥 Firebase 설정 */
@@ -20,11 +20,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* 🎯 상태 */
+/* 🎡 상태 */
 let items = [];
 let startAngle = 0;
 let arc;
 
+/* 캔버스 */
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 
@@ -33,17 +34,22 @@ const colors = [
   "#c77dff","#ff922b","#20c997","#f06595"
 ];
 
-/* 📥 Firebase 로드 (Rollet/items) */
-async function loadData(){
+/* 🔐 SHA256 */
+async function sha256(text){
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest("SHA-256", enc.encode(text));
+
+  return [...new Uint8Array(buf)]
+    .map(b => b.toString(16).padStart(2,"0"))
+    .join("");
+}
+
+/* 📥 Firebase 로드 */
+async function load(){
   const snap = await get(ref(db,"Rollet/items"));
 
   if(snap.exists()){
     items = snap.val();
-  } else {
-    const res = await fetch("Item.json");
-    const data = await res.json();
-    items = data.items;
-    saveData();
   }
 
   arc = Math.PI*2/items.length;
@@ -52,7 +58,7 @@ async function loadData(){
 }
 
 /* 💾 저장 */
-function saveData(){
+function save(){
   set(ref(db,"Rollet/items"), items);
 }
 
@@ -82,7 +88,7 @@ function drawWheel(){
   }
 }
 
-/* 🎯 돌리기 */
+/* 🎯 spin */
 function spin(){
   const spinAngle = Math.random()*2000+2000;
   const start = performance.now();
@@ -93,49 +99,49 @@ function spin(){
     drawWheel();
 
     if(p<1) requestAnimationFrame(animate);
-    else showResult();
   }
 
   requestAnimationFrame(animate);
 }
 
-/* 🎉 결과 */
-function showResult(){
-  const deg = startAngle*180/Math.PI+90;
-  const arcDeg = arc*180/Math.PI;
-  const index = Math.floor((360-(deg%360))/arcDeg)%items.length;
+/* 🔐 관리자 인증 */
+async function adminLogin(){
+  const pw = prompt("관리자 비밀번호");
 
-  document.getElementById("result").innerText =
-    "🎉 " + items[index];
+  const inputHash = await sha256(pw);
+
+  const snap = await get(ref(db,"Rollet/admin/passwordHash"));
+
+  if(!snap.exists()){
+    alert("관리자 설정 없음");
+    return false;
+  }
+
+  if(inputHash === snap.val()){
+    alert("관리자 인증 성공 🔐");
+    document.getElementById("adminPanel").classList.remove("hidden");
+    return true;
+  } else {
+    alert("비밀번호 틀림");
+    return false;
+  }
 }
 
 /* ➕ 추가 */
-document.getElementById("addBtn").addEventListener("click",async ()=>{
+async function addItem(){
   const v = prompt("추가:");
   if(!v) return;
 
   items.push(v);
-  saveData();
+  save();
   drawWheel();
   renderList();
-});
-
-/* 🔐 관리자 */
-let admin=false;
-
-document.getElementById("adminBtn").addEventListener("click",()=>{
-  const pw = prompt("비밀번호:");
-  if(pw==="1234"){
-    admin=true;
-    document.getElementById("adminPanel").classList.remove("hidden");
-    renderList();
-  }
-});
+}
 
 /* 🗑 삭제 */
 function deleteItem(i){
   items.splice(i,1);
-  saveData();
+  save();
   drawWheel();
   renderList();
 }
@@ -159,6 +165,8 @@ function renderList(){
 
 /* 🎯 이벤트 */
 document.getElementById("spinBtn").addEventListener("click",spin);
+document.getElementById("addBtn").addEventListener("click",addItem);
+document.getElementById("adminBtn").addEventListener("click",adminLogin);
 
 /* 🚀 시작 */
-loadData();
+load();
