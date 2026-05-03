@@ -1,4 +1,4 @@
-let items = [];
+let items = JSON.parse(localStorage.getItem("roulette_items") || "[]");
 let startAngle = 0;
 let arc;
 
@@ -10,15 +10,21 @@ const colors = [
   "#c77dff","#ff922b","#20c997","#f06595"
 ];
 
-// 📦 JSON 로드
+/* 📦 기본 JSON + 로컬 DB 합치기 */
 fetch("Item.json?v=" + Date.now())
   .then(res => res.json())
   .then(data => {
-    items = data.items;
+
+    const base = data.items;
+
+    // 합치기 + 중복 제거
+    items = [...new Set([...base, ...items])];
+
     arc = Math.PI * 2 / items.length;
     drawWheel();
   });
 
+/* 🎡 룰렛 그리기 */
 function drawWheel() {
   const radius = 180;
 
@@ -27,7 +33,6 @@ function drawWheel() {
   for (let i = 0; i < items.length; i++) {
     const angle = startAngle + i * arc;
 
-    // 🌈 알록달록 색상
     ctx.fillStyle = colors[i % colors.length];
 
     ctx.beginPath();
@@ -35,7 +40,6 @@ function drawWheel() {
     ctx.arc(200, 200, radius, angle, angle + arc);
     ctx.fill();
 
-    // 텍스트
     ctx.save();
     ctx.fillStyle = "white";
     ctx.translate(
@@ -48,6 +52,7 @@ function drawWheel() {
   }
 }
 
+/* 🎯 돌리기 */
 function spin() {
   const spinAngle = Math.random() * 2000 + 2000;
   const duration = 4000;
@@ -73,6 +78,7 @@ function easeOut(t) {
   return 1 - Math.pow(1 - t, 3);
 }
 
+/* 🎉 결과 */
 function showResult() {
   const degrees = startAngle * 180 / Math.PI + 90;
   const arcDeg = arc * 180 / Math.PI;
@@ -82,15 +88,19 @@ function showResult() {
     "🎉 결과: <span style='color:yellow'>" + items[index] + "</span>";
 }
 
-/* 🎯 이벤트 */
+/* 🎯 버튼 */
 document.getElementById("spinBtn").addEventListener("click", spin);
 
-/* 💡 제안 버튼 */
+/* 💡 제안 추가 + 로컬 저장 */
 document.getElementById("suggestBtn").addEventListener("click", () => {
   const input = prompt("추가할 항목 입력:");
   if (!input) return;
 
   items.push(input);
+
+  // 💾 로컬 DB 저장
+  localStorage.setItem("roulette_items", JSON.stringify(items));
+
   arc = Math.PI * 2 / items.length;
   drawWheel();
 });
